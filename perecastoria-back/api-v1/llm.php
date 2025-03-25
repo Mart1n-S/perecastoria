@@ -6,18 +6,21 @@ use Dotenv\Dotenv;
 $dotenv = Dotenv::createImmutable(__DIR__ . '../../');
 $dotenv->load();
 
-$apiKey = $_ENV['OPENAI_API_KEY'] ?? null;
-
-if (!$apiKey) {
-    die("Erreur : Clé API manquante.");
-}
 
 $movieTitle = "Le seigneur des anneaux : La communauté de l'anneau";
+$lang = "français";
 
-function generateStory($movieTitle, $apiKey) {
+function generateStory($movieTitle, $lang) {
+
+    $apiKey = $_ENV['OPENAI_API_KEY'] ?? null;
+    
+    if (!$apiKey) {
+        die("Erreur : Clé API manquante.");
+    }    
+    
     $url = "https://api.openai.com/v1/chat/completions";
 
-    $prompt = "Raconte une histoire inspirée du film '$movieTitle' en 300 mots. Garde un ton captivant et immersif.";
+    $prompt = "Raconte moi une histoire inspirée du film '$movieTitle' en 300 mots et en $lang. Garde un ton captivant et immersif.";
 
     $data = [
         "model" => "gpt-4o-mini",
@@ -49,25 +52,25 @@ function generateStory($movieTitle, $apiKey) {
 
 
 function generateImagePrompt($story) {
-    $prompt = "Illustration d'une scène de cette histoire : " . substr($story, 0, 200) . "é dans un style cinématographique épique.";
+    $prompt = "Illustration d'une scène de cette histoire : " . substr($story, 0, 200) . "... dans un style cinématographique épique.";
     return $prompt;
 }
 
-$response = generateStory($movieTitle, $apiKey);
+$response = generateStory($movieTitle,$lang);
 
 if (isset($response['choices'][0]['message']['content'])) {
-    echo "<h2>Histoire générée basé sur : $movieTitle</h2>";
-    echo "<p>" . nl2br(htmlspecialchars($response['choices'][0]['message']['content'])) . "</p>";
+    $story = $response['choices'][0]['message']['content'];
+    $imagePrompt = generateImagePrompt($story);
+
+    // Retourner la réponse au format JSON proprement
+    header('Content-Type: application/json');
+    echo json_encode([
+        "story" => $story,
+        "imagePrompt" => $imagePrompt,
+        "status" => "success"
+    ], JSON_PRETTY_PRINT);
 } else {
-    echo "Erreur lors de la génération de l'histoire.";
+    // En cas d'erreur, retourner un message d'erreur JSON
+    header('Content-Type: application/json');
+    echo json_encode(["error" => "Erreur lors de la génération de l'histoire", "status" => "error"]);
 }
-
-$imagePrompt = generateImagePrompt($response['choices'][0]['message']['content']);
-echo "<h2>Prompt pour DALL-E :</h2>";
-
-if (isset($imagePrompt)) {
-    echo "<p>$imagePrompt</p>";
-} else {
-    echo "Erreur lors de la génération du prompt pour DALL-E.";
-}
-
