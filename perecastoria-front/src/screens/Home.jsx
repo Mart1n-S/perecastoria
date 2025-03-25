@@ -44,9 +44,9 @@ const Home = () => {
   return (
     <Box
       display="flex"
+      flexDirection="column"
       justifyContent="center"
       alignItems="center"
-      height="100vh"
       width="100vw"
       sx={{
         background: "linear-gradient(to top, black, #222, black)",
@@ -57,6 +57,7 @@ const Home = () => {
           width: "400px",
           bgcolor: "rgba(255, 255, 255, 0.1)",
           backdropFilter: "blur(10px)",
+          mt: 4,
           p: 4,
           borderRadius: 3,
           boxShadow: 3,
@@ -114,9 +115,12 @@ const Home = () => {
             </Select>
           </FormControl>
         </Box>
-
-        {result && <Result storyData={result.story_data} audioUrl={result.audio_url} imageBase64={result.image_base_64} />}
       </Box>
+      <Result storyData={'Dans un petit village niché entre les montagnes, une mystérieuse brume violette apparaissait chaque soir au coucher du soleil. Les anciens disaient qu’elle abritait des esprits bienveillants, mais personne n’osait vraiment s’y aventurer… jusqu’au jour où un enfant curieux décida d’en percer le secret.'} 
+        audioUrl={'UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA'} 
+        imageBase64={'/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAx'} 
+        />
+        {result && <Result storyData={result.story_data} audioUrl={result.audio_url} imageBase64={result.image_base_64} />}
     </Box>
   );
 };
