@@ -13,11 +13,12 @@ if (!$apiKey) {
 }
 
 $movieTitle = "Le seigneur des anneaux : La communauté de l'anneau";
+$lang = "français";
 
-function generateStory($movieTitle, $apiKey) {
+function generateStory($movieTitle, $lang, $apiKey) {
     $url = "https://api.openai.com/v1/chat/completions";
 
-    $prompt = "Raconte une histoire inspirée du film '$movieTitle' en 300 mots. Garde un ton captivant et immersif.";
+    $prompt = "Raconte moi une histoire inspirée du film '$movieTitle' en 300 mots et en $lang. Garde un ton captivant et immersif.";
 
     $data = [
         "model" => "gpt-4o-mini",
@@ -53,10 +54,10 @@ function generateImagePrompt($story) {
     return $prompt;
 }
 
-$response = generateStory($movieTitle, $apiKey);
+$response = generateStory($movieTitle,$lang, $apiKey);
 
 if (isset($response['choices'][0]['message']['content'])) {
-    echo "<h2>Histoire générée basé sur : $movieTitle</h2>";
+    echo "<h2>Histoire générée basé sur : $movieTitle et en $lang</h2>";
     echo "<p>" . nl2br(htmlspecialchars($response['choices'][0]['message']['content'])) . "</p>";
 } else {
     echo "Erreur lors de la génération de l'histoire.";
