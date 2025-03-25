@@ -13,10 +13,10 @@ const Home = () => {
     try {
       const payload = {
         prompt: description,
-        langue: language,
+        language: language,
       };
   
-      const response = await fetch('https://perecastoria.fr/perecastoria-back/api-v1/llm.php', {
+      const response = await fetch('https://perecastoria.fr/perecastoria-back/api-v1/orchestrator.php', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
