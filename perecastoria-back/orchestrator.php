@@ -65,7 +65,7 @@ class Orchestrator
         } else {
             //if $async = false not asynchornous else
             // Step 2: Generate audio and image using TTS and TTI
-            $audioUrl = null;
+            $audioBase64 = null;
             $imageBase64 = null;
 
             // Création d'une instance de Pool pour gérer les tâches asynchrones
@@ -74,31 +74,33 @@ class Orchestrator
             // Ajout de la tâche de génération d'audio au pool
             $pool->add(function () use ($story, $language) {
                 return openaiTextToSpeech($story, $language);
-            })->then(function ($audioResult) use (&$audioUrl) { 
+            })->then(function ($audioResult) use (&$audioBase64) { 
+                echo "audioResult";
+                dd($audioResult);
                 if ($audioResult['status'] === 'success') {
-                    $audioUrl = $audioResult['audio_url'];
+                    $audioBase64 = $audioResult['audio'];
                 } else {
-                    $audioUrl = null;
+                    $audioBase64 = null;
                     echo "Erreur lors de la génération de l'audio : " . $audioResult['message'];
                 }
             })->catch(function (Throwable $exception) {
                 echo "Exception lors de la génération de l'audio : " . $exception->getMessage();
             });
 
-            // Ajout de la tâche de génération d'image au pool
-            $pool->add(function () use ($imagePrompt) {
-                $generator = new ImageGenerator();
-                return $generator->generateImage($imagePrompt);
-            })->then(function ($imageResult) use (&$imageBase64) {
-                if ($imageResult['status'] === 'success') {
-                    $imageBase64 = $imageResult['image'];
-                } else {
-                    $imageBase64 = null;
-                    echo "Erreur lors de la génération de l'image : " . $imageResult['error'];
-                }
-            })->catch(function (Throwable $exception) {
-                echo "Exception lors de la génération de l'image : " . $exception->getMessage();
-            });
+            // // Ajout de la tâche de génération d'image au pool
+            // $pool->add(function () use ($imagePrompt) {
+            //     $generator = new ImageGenerator();
+            //     return $generator->generateImage($imagePrompt);
+            // })->then(function ($imageResult) use (&$imageBase64) {
+            //     if ($imageResult['status'] === 'success') {
+            //         $imageBase64 = $imageResult['image'];
+            //     } else {
+            //         $imageBase64 = null;
+            //         echo "Erreur lors de la génération de l'image : " . $imageResult['error'];
+            //     }
+            // })->catch(function (Throwable $exception) {
+            //     echo "Exception lors de la génération de l'image : " . $exception->getMessage();
+            // });
 
             // Exécution des tâches asynchrones et attente de leur achèvement
             $pool->wait();

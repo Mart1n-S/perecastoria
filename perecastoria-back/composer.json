@@ -2,5 +2,10 @@
     "require": {
         "vlucas/phpdotenv": "^5.6",
         "spatie/async": "^1.6"
+    },
+    "config": {
+        "platform": {
+            "php": "7.4.0"
+        }
     }
 }
