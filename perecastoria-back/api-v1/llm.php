@@ -51,25 +51,25 @@ function generateStory($movieTitle, $lang) {
 
 
 function generateImagePrompt($story) {
-    $prompt = "Illustration d'une scène de cette histoire : " . substr($story, 0, 200) . "é dans un style cinématographique épique.";
+    $prompt = "Illustration d'une scène de cette histoire : " . substr($story, 0, 200) . "... dans un style cinématographique épique.";
     return $prompt;
 }
 
-$response = generateStory($movieTitle,$lang, $apiKey);
+$response = generateStory($movieTitle,$lang);
 
 if (isset($response['choices'][0]['message']['content'])) {
-    echo "<h2>Histoire générée basé sur : $movieTitle et en $lang</h2>";
-    echo "<p>" . nl2br(htmlspecialchars($response['choices'][0]['message']['content'])) . "</p>";
+    $story = $response['choices'][0]['message']['content'];
+    $imagePrompt = generateImagePrompt($story);
+
+    // Retourner la réponse au format JSON proprement
+    header('Content-Type: application/json');
+    echo json_encode([
+        "story" => $story,
+        "imagePrompt" => $imagePrompt,
+        "status" => "success"
+    ], JSON_PRETTY_PRINT);
 } else {
-    echo "Erreur lors de la génération de l'histoire.";
+    // En cas d'erreur, retourner un message d'erreur JSON
+    header('Content-Type: application/json');
+    echo json_encode(["error" => "Erreur lors de la génération de l'histoire", "status" => "error"]);
 }
-
-$imagePrompt = generateImagePrompt($response['choices'][0]['message']['content']);
-echo "<h2>Prompt pour DALL-E :</h2>";
-
-if (isset($imagePrompt)) {
-    echo "<p>$imagePrompt</p>";
-} else {
-    echo "Erreur lors de la génération du prompt pour DALL-E.";
-}
-
