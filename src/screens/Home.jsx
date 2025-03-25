@@ -16,7 +16,7 @@ const Home = () => {
         language: language,
       };
   
-      const response = await fetch('https://perecastoria.fr/perecastoria-back/api-v1/orchestrator.php', {
+      const response = await fetch('https://perecastoria.fr/perecastoria-back/orchestrator.php', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
