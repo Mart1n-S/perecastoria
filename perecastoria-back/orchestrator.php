@@ -37,45 +37,77 @@ class Orchestrator
             echo $story['message'];
 
         }
-        // Création d'une instance de Pool pour gérer les tâches asynchrones
-        $pool = Pool::create();
 
-        // Ajout de la tâche de génération d'audio au pool
-        $pool->add(function () use ($story, $language) {
-            return openaiTextToSpeech($story, $language);
-        })->then(function ($audioResult) use (&$audioUrl) {
+        $async = false;
+        if(!$async) {
+            // Step 2: Generate audio and image using TTS and TTI
+            $audioBase64 = null;
+            $imageBase64 = null;
+
+            // Generate audio using TTS
+            $audioResult = openaiTextToSpeech($story, $language);
             if ($audioResult['status'] === 'success') {
-                $audioUrl = $audioResult['audio_url'];
+                $audioBase64 = $audioResult['audio'];
             } else {
-                $audioUrl = null;
+                $audioBase64 = null;
                 echo "Erreur lors de la génération de l'audio : " . $audioResult['message'];
             }
-        })->catch(function (Throwable $exception) {
-            echo "Exception lors de la génération de l'audio : " . $exception->getMessage();
-        });
 
-        // Ajout de la tâche de génération d'image au pool
-        $pool->add(function () use ($imagePrompt) {
+            // Generate image using TTI
             $generator = new ImageGenerator();
-            return $generator->generateImage($imagePrompt);
-        })->then(function ($imageResult) use (&$imageBase64) {
+            $imageResult = $generator->generateImage($imagePrompt);
             if ($imageResult['status'] === 'success') {
                 $imageBase64 = $imageResult['image'];
             } else {
                 $imageBase64 = null;
                 echo "Erreur lors de la génération de l'image : " . $imageResult['error'];
             }
-        })->catch(function (Throwable $exception) {
-            echo "Exception lors de la génération de l'image : " . $exception->getMessage();
-        });
+        } else {
+            //if $async = false not asynchornous else
+            // Step 2: Generate audio and image using TTS and TTI
+            $audioUrl = null;
+            $imageBase64 = null;
 
-        // Exécution des tâches asynchrones et attente de leur achèvement
-        $pool->wait();
+            // Création d'une instance de Pool pour gérer les tâches asynchrones
+            $pool = Pool::create();
+
+            // Ajout de la tâche de génération d'audio au pool
+            $pool->add(function () use ($story, $language) {
+                return openaiTextToSpeech($story, $language);
+            })->then(function ($audioResult) use (&$audioUrl) { 
+                if ($audioResult['status'] === 'success') {
+                    $audioUrl = $audioResult['audio_url'];
+                } else {
+                    $audioUrl = null;
+                    echo "Erreur lors de la génération de l'audio : " . $audioResult['message'];
+                }
+            })->catch(function (Throwable $exception) {
+                echo "Exception lors de la génération de l'audio : " . $exception->getMessage();
+            });
+
+            // Ajout de la tâche de génération d'image au pool
+            $pool->add(function () use ($imagePrompt) {
+                $generator = new ImageGenerator();
+                return $generator->generateImage($imagePrompt);
+            })->then(function ($imageResult) use (&$imageBase64) {
+                if ($imageResult['status'] === 'success') {
+                    $imageBase64 = $imageResult['image'];
+                } else {
+                    $imageBase64 = null;
+                    echo "Erreur lors de la génération de l'image : " . $imageResult['error'];
+                }
+            })->catch(function (Throwable $exception) {
+                echo "Exception lors de la génération de l'image : " . $exception->getMessage();
+            });
+
+            // Exécution des tâches asynchrones et attente de leur achèvement
+            $pool->wait();
+        }
 
         // Retour des résultats
         return [
-            'story_data' => $storyData,
-            'audio_url' => $audioUrl ?? null,
+            'story_data' => $story?? null,
+            'audio_url' => $audioBase64 ?? null,
             'image_base_64' => $imageBase64 ?? null,
         ];
 
@@ -94,18 +126,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header('Content-Type: application/json');
     echo json_encode($response);
 } else if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['debug']) && $_GET['debug'] === 'true') {
+    
     $language ='fr';
     $prompt = 'Inception';
 
     $orchestrator = new Orchestrator();
     $response = $orchestrator->handleRequest($language, $prompt);
-    // stilized vardump
-    echo "<pre>";
-        var_dump($response);
-    echo "</pre>";
+    dd($response);
 
 }  else {
     header('HTTP/1.1 405 Method Not Allowed');
     header('Content-Type: application/json');
     echo json_encode(['error' => 'Method Not Allowed']);
+}
+
+
+
+// DD function
+function dd($data) {
+    echo "<pre>";
+    var_dump($data);
+    echo "</pre>";
+    die();
 }

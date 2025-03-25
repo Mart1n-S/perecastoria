@@ -87,8 +87,3 @@ function getStoryData($movieTitle, $lang) {
         ];
     }
 }
-
-$responseData = getStoryData($movieTitle, $lang);
-
-header('Content-Type: application/json');
-echo json_encode($responseData, JSON_PRETTY_PRINT);
