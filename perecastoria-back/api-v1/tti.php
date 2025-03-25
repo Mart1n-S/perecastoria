@@ -66,33 +66,33 @@ class ImageGenerator
 }
 
 // Exemple d'utilisation
-$generator = new ImageGenerator();
-$result = $generator->generateImage("Un chat astronaut dans l'espace", 'b64_json');
+// $generator = new ImageGenerator();
+// $result = $generator->generateImage("Un chat astronaut dans l'espace", 'b64_json');
 
-// Affichage HTML avec image en base64 (recommandé pour les pages web)
-if ($result['image']) {
-    echo '<!DOCTYPE html>
-    <html lang="fr">
-    <head>
-        <meta charset="UTF-8">
-        <title>Image générée</title>
-        <style>
-            body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; text-align: center; }
-            img { max-width: 100%; height: auto; border: 1px solid #ddd; border-radius: 4px; padding: 5px; margin-top: 20px; }
-            .error { color: red; padding: 20px; border: 1px solid red; border-radius: 4px; }
-            .download-btn { display: inline-block; margin-top: 15px; padding: 8px 16px; background: #4CAF50; color: white; text-decoration: none; border-radius: 4px; }
-        </style>
-    </head>
-    <body>
-        <h1>Votre image générée</h1>
-        <img src="data:image/png;base64,' . htmlspecialchars($result['image']) . '" alt="Image générée par IA">
-        <p>
-            <a href="data:image/png;base64,' . htmlspecialchars($result['image']) . '" 
-               download="image-generee.png" 
-               class="download-btn">Télécharger l\'image</a>
-        </p>
-    </body>
-    </html>';
-} else {
-    echo '<div class="error"><h1>Erreur</h1><p>' . htmlspecialchars($result['error']) . '</p></div>';
-}
+// // Affichage HTML avec image en base64 (recommandé pour les pages web)
+// if ($result['image']) {
+//     echo '<!DOCTYPE html>
+//     <html lang="fr">
+//     <head>
+//         <meta charset="UTF-8">
+//         <title>Image générée</title>
+//         <style>
+//             body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; text-align: center; }
+//             img { max-width: 100%; height: auto; border: 1px solid #ddd; border-radius: 4px; padding: 5px; margin-top: 20px; }
+//             .error { color: red; padding: 20px; border: 1px solid red; border-radius: 4px; }
+//             .download-btn { display: inline-block; margin-top: 15px; padding: 8px 16px; background: #4CAF50; color: white; text-decoration: none; border-radius: 4px; }
+//         </style>
+//     </head>
+//     <body>
+//         <h1>Votre image générée</h1>
+//         <img src="data:image/png;base64,' . htmlspecialchars($result['image']) . '" alt="Image générée par IA">
+//         <p>
+//             <a href="data:image/png;base64,' . htmlspecialchars($result['image']) . '" 
+//                download="image-generee.png" 
+//                class="download-btn">Télécharger l\'image</a>
+//         </p>
+//     </body>
+//     </html>';
+// } else {
+//     echo '<div class="error"><h1>Erreur</h1><p>' . htmlspecialchars($result['error']) . '</p></div>';
+// }
