@@ -116,11 +116,7 @@ const Home = () => {
           </FormControl>
         </Box>
       </Box>
-      <Result storyData={'Dans un petit village niché entre les montagnes, une mystérieuse brume violette apparaissait chaque soir au coucher du soleil. Les anciens disaient qu’elle abritait des esprits bienveillants, mais personne n’osait vraiment s’y aventurer… jusqu’au jour où un enfant curieux décida d’en percer le secret.'} 
-        audioUrl={'UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA'} 
-        imageBase64={'/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAx'} 
-        />
-        {result && <Result storyData={result.story_data} audioUrl={result.audio_url} imageBase64={result.image_base_64} />}
+      {result && <Result storyData={result.story_data} audioUrl={result.audio_url} imageBase64={result.image_base_64} />}
     </Box>
   );
 };
