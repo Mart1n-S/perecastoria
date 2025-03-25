@@ -6,9 +6,6 @@ use Dotenv\Dotenv;
 $dotenv = Dotenv::createImmutable(__DIR__ . '../../');
 $dotenv->load();
 
-if (!$apiKey) {
-    die("Erreur : Clé API manquante.");
-}
 
 $movieTitle = "Le seigneur des anneaux : La communauté de l'anneau";
 $lang = "français";
@@ -16,6 +13,10 @@ $lang = "français";
 function generateStory($movieTitle, $lang) {
 
     $apiKey = $_ENV['OPENAI_API_KEY'] ?? null;
+    
+    if (!$apiKey) {
+        die("Erreur : Clé API manquante.");
+    }    
     
     $url = "https://api.openai.com/v1/chat/completions";
 
