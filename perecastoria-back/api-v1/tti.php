@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/vendor/autoload.php';
+require __DIR__ . '../../vendor/autoload.php';
 
 use Dotenv\Dotenv;
 
@@ -10,7 +10,7 @@ class ImageGenerator
     public function __construct()
     {
         // Charge les variables d'environnement
-        $dotenv = Dotenv::createImmutable(__DIR__);
+        $dotenv = Dotenv::createImmutable(__DIR__ . '../../');
         $dotenv->load();
         $this->api_key = $_ENV['TTI_API_KEY'] ?? null;
     }
