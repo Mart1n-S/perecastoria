@@ -15,20 +15,28 @@ class ImageGenerator
     }
 
     /**
-     * Génère une image à partir d'un prompt
+     * Génère plusieurs images à partir d'un prompt
      * @param string $prompt La description de l'image à générer
      * @param string $format 'url'|'b64_json' - Format de réponse souhaité
-     * @return array ['image' => mixed, 'error' => string|null]
+     * @param int $count Nombre d'images à générer (1-10)
+     * @return array ['status' => string, 'images' => array|null, 'error' => string|null]
      */
-    public function generateImage(string $prompt, string $format = 'b64_json'): array
+    public function generateImages(string $prompt, string $format = 'b64_json', int $count = 3): array
     {
         if (!$this->api_key) {
-            return ['image' => null, 'error' => "Clé API introuvable. Vérifiez votre variable d'environnement TTI_API_KEY."];
+            return [
+                'status' => 'error',
+                'images' => null,
+                'error' => "Clé API introuvable. Vérifiez votre variable d'environnement TTI_API_KEY."
+            ];
         }
+
+        // Validation du nombre d'images
+        $count = max(1, min(10, $count)); // Limité à 10 images max
 
         $data = [
             "prompt" => $prompt,
-            "n" => 1,
+            "n" => $count,
             "size" => "512x512",
             "response_format" => $format
         ];
@@ -48,17 +56,18 @@ class ImageGenerator
 
         $result = json_decode($response, true);
 
-        if (isset($result['data'][0][$format])) {
+        if (isset($result['data'])) {
+            $images = array_column($result['data'], $format);
             return [
                 'status' => 'success',
-                'image' => $result['data'][0][$format],
+                'images' => $images,
                 'error' => null
             ];
         } else {
-            $error = $result['error']['message'] ?? 'Erreur inconnue lors de la génération de l\'image';
+            $error = $result['error']['message'] ?? 'Erreur inconnue lors de la génération des images';
             return [
                 'status' => 'error',
-                'image' => null,
+                'images' => null,
                 'error' => $error
             ];
         }
@@ -67,32 +76,40 @@ class ImageGenerator
 
 // Exemple d'utilisation
 // $generator = new ImageGenerator();
-// $result = $generator->generateImage("Un chat astronaut dans l'espace", 'b64_json');
+// $result = $generator->generateImages("Un chat astronaut dans l'espace", 'b64_json', 3);
 
-// // Affichage HTML avec image en base64 (recommandé pour les pages web)
-// if ($result['image']) {
+// // Affichage HTML avec les 3 images
+// if ($result['status'] === 'success' && !empty($result['images'])) {
 //     echo '<!DOCTYPE html>
 //     <html lang="fr">
 //     <head>
 //         <meta charset="UTF-8">
-//         <title>Image générée</title>
+//         <title>Images générées</title>
 //         <style>
-//             body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; text-align: center; }
-//             img { max-width: 100%; height: auto; border: 1px solid #ddd; border-radius: 4px; padding: 5px; margin-top: 20px; }
-//             .error { color: red; padding: 20px; border: 1px solid red; border-radius: 4px; }
-//             .download-btn { display: inline-block; margin-top: 15px; padding: 8px 16px; background: #4CAF50; color: white; text-decoration: none; border-radius: 4px; }
+//             body { font-family: Arial, sans-serif; max-width: 1200px; margin: 0 auto; padding: 20px; text-align: center; }
+//             .gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 30px; }
+//             .image-card { border: 1px solid #ddd; border-radius: 8px; padding: 15px; }
+//             img { max-width: 100%; height: auto; border-radius: 4px; }
+//             .download-btn { display: inline-block; margin-top: 10px; padding: 8px 16px; background: #4CAF50; color: white; text-decoration: none; border-radius: 4px; }
+//             .error { color: red; padding: 20px; border: 1px solid red; border-radius: 4px; margin: 20px auto; max-width: 600px; }
 //         </style>
 //     </head>
 //     <body>
-//         <h1>Votre image générée</h1>
-//         <img src="data:image/png;base64,' . htmlspecialchars($result['image']) . '" alt="Image générée par IA">
-//         <p>
-//             <a href="data:image/png;base64,' . htmlspecialchars($result['image']) . '" 
-//                download="image-generee.png" 
-//                class="download-btn">Télécharger l\'image</a>
-//         </p>
-//     </body>
-//     </html>';
+//         <h1>Vos images générées</h1>
+//         <div class="gallery">';
+//     print_r($result);
+//     foreach ($result['images'] as $index => $imageData) {
+//         echo '<div class="image-card">
+//                 <img src="data:image/png;base64,' . htmlspecialchars($imageData) . '" alt="Image générée ' . ($index + 1) . '">
+//                 <p>
+//                     <a href="data:image/png;base64,' . htmlspecialchars($imageData) . '" 
+//                        download="image-' . ($index + 1) . '.png" 
+//                        class="download-btn">Télécharger</a>
+//                 </p>
+//               </div>';
+//     }
+
+//     echo '</div></body></html>';
 // } else {
 //     echo '<div class="error"><h1>Erreur</h1><p>' . htmlspecialchars($result['error']) . '</p></div>';
 // }
