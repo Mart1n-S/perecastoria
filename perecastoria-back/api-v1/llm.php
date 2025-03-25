@@ -32,7 +32,7 @@ function generateStory($movieTitle, $lang) {
     
     $url = "https://api.openai.com/v1/chat/completions";
 
-    $prompt = "Raconte moi une histoire inspirée du film '$movieTitle' en 300 mots et en $lang. Garde un ton captivant et immersif.";
+    $prompt = "Raconte-moi une histoire captivante inspirée de l'œuvre suivante : '$movieTitle'. L'histoire doit inclure des éléments clés de cette œuvre, mais tu peux ajouter des touches créatives pour la rendre unique. Elle doit être racontée en $lang, avec un ton immersif, épique, et plein de suspense. Assure-toi que le récit soit clair, dynamique et qu'il capte l'attention du lecteur dès les premières lignes. Garde une structure classique avec une introduction, un développement et une conclusion, tout en respectant l'univers du titre donné.";
 
     $data = [
         "model" => "gpt-4o-mini",
