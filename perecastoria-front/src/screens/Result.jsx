@@ -1,12 +1,9 @@
 import React from 'react';
-import { Box, Typography, Button, IconButton } from '@mui/material';
+import { Box, Typography, IconButton } from '@mui/material';
 import { PlayArrow } from '@mui/icons-material';
 
 const Result = ({ storyData, audioUrl, imageBase64 }) => {
-  const handlePlayAudio = () => {
-    const audio = new Audio(audioUrl);
-    audio.play();
-  };
+  const base64Audio = audioUrl.startsWith("data:") ? audioUrl : `data:audio/mp3;base64,${audioUrl}`;
 
   return (
     <Box
@@ -26,17 +23,19 @@ const Result = ({ storyData, audioUrl, imageBase64 }) => {
       </Typography>
 
       <Box sx={{ mb: 3 }}>
-        <img src={`data:image/jpeg;base64,${imageBase64}`} alt="Generated" style={{ width: '100%', borderRadius: 8 }} />
+        <img
+          src={`data:image/jpeg;base64,${imageBase64}`}
+          alt="Generated"
+          style={{ width: '100%', borderRadius: 8 }}
+        />
       </Box>
 
       {audioUrl && (
         <Box>
-          <IconButton color="primary" onClick={handlePlayAudio}>
-            <PlayArrow />
-          </IconButton>
-          <Typography variant="body1" color="white" mt={1}>
-            Click to Play Audio
-          </Typography>
+          <audio controls>
+            <source src={base64Audio} type="audio/mp3" />
+            Your browser does not support the audio element.
+          </audio>
         </Box>
       )}
     </Box>
