@@ -1,8 +1,19 @@
 <?php
 
-function openaiTextToSpeech($input, $apiKey) {
-    $endpoint = 'https://api.openai.com/v1/audio/speech'; // The TTS endpoint - replace if different
+use Dotenv\Dotenv;
 
+$dotenv = Dotenv::createImmutable(__DIR__ . '../../');
+$dotenv->load();
+
+function openaiTextToSpeech($input) {
+    $apiKey = $_ENV['TTS_API_KEY'] ?? null;
+
+    if (!$apiKey) {
+        die("Erreur : Clé API manquante.");
+    }
+
+    $endpoint = 'https://api.openai.com/v1/audio/speech'; // The TTS endpoint - replace if different
+    
     // Data to send in the request
     $data = [
         'model' => 'gpt-4o-mini-tts',
