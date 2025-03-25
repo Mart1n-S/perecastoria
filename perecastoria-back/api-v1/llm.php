@@ -1,26 +1,26 @@
 <?php
-require __DIR__ . '/../../vendor/autoload.php';
+require __DIR__ . '../../vendor/autoload.php';
 
 use Dotenv\Dotenv;
 
-$dotenv = Dotenv::createImmutable(__DIR__ . '/../');
+$dotenv = Dotenv::createImmutable(__DIR__ . '../../');
 $dotenv->load();
 
 $apiKey = $_ENV['OPENAI_API_KEY'] ?? null;
 
 if (!$apiKey) {
-    die("Erreur : Cl� API manquante.");
+    die("Erreur : Clé API manquante.");
 }
 
-$movieTitle = "Le seigneur des anneaux : La communaut� de l'anneau";
+$movieTitle = "Le seigneur des anneaux : La communauté de l'anneau";
 
 function generateStory($movieTitle, $apiKey) {
     $url = "https://api.openai.com/v1/chat/completions";
 
-    $prompt = "Raconte une histoire inspir�e du film '$movieTitle' en 300 mots. Garde un ton captivant et immersif.";
+    $prompt = "Raconte une histoire inspirée du film '$movieTitle' en 300 mots. Garde un ton captivant et immersif.";
 
     $data = [
-        "model" => "gpt-4-turbo-mini",
+        "model" => "gpt-4o-mini",
         "messages" => [
             ["role" => "system", "content" => "Tu es un narrateur qui raconte des histoires captivantes."],
             ["role" => "user", "content" => $prompt]
@@ -47,6 +47,27 @@ function generateStory($movieTitle, $apiKey) {
     return json_decode($response, true);
 }
 
+
+function generateImagePrompt($story) {
+    $prompt = "Illustration d'une scène de cette histoire : " . substr($story, 0, 200) . "é dans un style cinématographique épique.";
+    return $prompt;
+}
+
 $response = generateStory($movieTitle, $apiKey);
 
-echo $response;
+if (isset($response['choices'][0]['message']['content'])) {
+    echo "<h2>Histoire générée basé sur : $movieTitle</h2>";
+    echo "<p>" . nl2br(htmlspecialchars($response['choices'][0]['message']['content'])) . "</p>";
+} else {
+    echo "Erreur lors de la génération de l'histoire.";
+}
+
+$imagePrompt = generateImagePrompt($response['choices'][0]['message']['content']);
+echo "<h2>Prompt pour DALL-E :</h2>";
+
+if (isset($imagePrompt)) {
+    echo "<p>$imagePrompt</p>";
+} else {
+    echo "Erreur lors de la génération du prompt pour DALL-E.";
+}
+
