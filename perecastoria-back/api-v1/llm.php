@@ -6,9 +6,21 @@ use Dotenv\Dotenv;
 $dotenv = Dotenv::createImmutable(__DIR__ . '../../');
 $dotenv->load();
 
+if (isset($_POST['prompt'])) {
+    $movieTitle = $_POST['prompt'];
+} else {
+    header('Content-Type: application/json');
+    echo json_encode(["error" => "Titre du film manquant.", "status" => "error"]);
+    exit();
+}
 
-$movieTitle = "Le seigneur des anneaux : La communauté de l'anneau";
-$lang = "français";
+if (isset($_POST['langue'])) {
+    $lang = $_POST['langue'];
+}else {
+    header('Content-Type: application/json');
+    echo json_encode(["error" => "Langue manquante.", "status" => "error"]);
+    exit();
+}
 
 function generateStory($movieTitle, $lang) {
 
