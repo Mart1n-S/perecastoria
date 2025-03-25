@@ -55,9 +55,9 @@ class Orchestrator
 
             // Generate image using TTI
             $generator = new ImageGenerator();
-            $imageResult = $generator->generateImage($imagePrompt);
+            $imageResult = $generator->generateImages($imagePrompt,'b64_json', 1);
             if ($imageResult['status'] === 'success') {
-                $imageBase64 = $imageResult['image'];
+                $imageBase64 = $imageResult['images'][0];
             } else {
                 $imageBase64 = null;
                 echo "Erreur lors de la génération de l'image : " . $imageResult['error'];
@@ -119,8 +119,21 @@ class Orchestrator
 
 // Handle incoming request
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $language = $_POST['language'] ?? 'fr';
-    $prompt = $_POST['prompt'] ?? '';
+     
+    // Lire le contenu brut de la requête POST
+    $json = file_get_contents('php://input');
+
+    // Convertir le JSON en tableau associatif PHP
+    $data = json_decode($json, true);
+
+    // Optionnel : vérifier si le décodage a réussi
+    if ($data === null) {
+        http_response_code(400); // Bad Request
+        echo json_encode(["error" => "Invalid JSON"]);
+        exit;
+    }
+    $language = $data['language'] ?? 'fr';
+    $prompt = $data['prompt'] ?? '';
 
     $orchestrator = new Orchestrator();
     $response = $orchestrator->handleRequest($language, $prompt);

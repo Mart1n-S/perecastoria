@@ -116,6 +116,7 @@ const Home = () => {
           </FormControl>
         </Box>
       </Box>
+      
       {result && <Result storyData={result.story_data} audioUrl={result.audio_url} imageBase64={result.image_base_64} />}
     </Box>
   );
