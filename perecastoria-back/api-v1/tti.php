@@ -9,7 +9,6 @@ class ImageGenerator
 
     public function __construct()
     {
-        // Charge les variables d'environnement
         $dotenv = Dotenv::createImmutable(__DIR__ . '../../');
         $dotenv->load();
         $this->api_key = $_ENV['TTI_API_KEY'] ?? null;
@@ -18,18 +17,20 @@ class ImageGenerator
     /**
      * Génère une image à partir d'un prompt
      * @param string $prompt La description de l'image à générer
-     * @return array ['url' => string|null, 'error' => string|null]
+     * @param string $format 'url'|'b64_json' - Format de réponse souhaité
+     * @return array ['image' => mixed, 'error' => string|null]
      */
-    public function generateImage(string $prompt): array
+    public function generateImage(string $prompt, string $format = 'b64_json'): array
     {
         if (!$this->api_key) {
-            return ['url' => null, 'error' => "Clé API introuvable. Vérifiez votre variable d'environnement TTI_API_KEY."];
+            return ['image' => null, 'error' => "Clé API introuvable. Vérifiez votre variable d'environnement TTI_API_KEY."];
         }
 
         $data = [
             "prompt" => $prompt,
             "n" => 1,
-            "size" => "512x512"
+            "size" => "512x512",
+            "response_format" => $format
         ];
 
         $ch = curl_init();
@@ -47,61 +48,51 @@ class ImageGenerator
 
         $result = json_decode($response, true);
 
-        if (isset($result['data'][0]['url'])) {
-            return ['url' => $result['data'][0]['url'], 'error' => null];
+        if (isset($result['data'][0][$format])) {
+            return [
+                'status' => 'success',
+                'image' => $result['data'][0][$format],
+                'error' => null
+            ];
         } else {
             $error = $result['error']['message'] ?? 'Erreur inconnue lors de la génération de l\'image';
-            return ['url' => null, 'error' => $error];
+            return [
+                'status' => 'error',
+                'image' => null,
+                'error' => $error
+            ];
         }
     }
 }
 
 // Exemple d'utilisation
 $generator = new ImageGenerator();
-$result = $generator->generateImage("Un chat astronaut dans l'espace");
+$result = $generator->generateImage("Un chat astronaut dans l'espace", 'b64_json');
 
-// Génération du HTML
-echo '<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <title>Image générée</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            text-align: center;
-        }
-        img {
-            max-width: 100%;
-            height: auto;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            padding: 5px;
-            margin-top: 20px;
-        }
-        .error {
-            color: red;
-            padding: 20px;
-            border: 1px solid red;
-            border-radius: 4px;
-        }
-    </style>
-</head>
-<body>';
-
-if ($result['url']) {
-    echo '<h1>Votre image générée</h1>
-          <img src="' . htmlspecialchars($result['url']) . '" alt="Image générée par IA">
-          <p><a href="' . htmlspecialchars($result['url']) . '" target="_blank">Ouvrir l\'image dans un nouvel onglet</a></p>';
+// Affichage HTML avec image en base64 (recommandé pour les pages web)
+if ($result['image']) {
+    echo '<!DOCTYPE html>
+    <html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <title>Image générée</title>
+        <style>
+            body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; text-align: center; }
+            img { max-width: 100%; height: auto; border: 1px solid #ddd; border-radius: 4px; padding: 5px; margin-top: 20px; }
+            .error { color: red; padding: 20px; border: 1px solid red; border-radius: 4px; }
+            .download-btn { display: inline-block; margin-top: 15px; padding: 8px 16px; background: #4CAF50; color: white; text-decoration: none; border-radius: 4px; }
+        </style>
+    </head>
+    <body>
+        <h1>Votre image générée</h1>
+        <img src="data:image/png;base64,' . htmlspecialchars($result['image']) . '" alt="Image générée par IA">
+        <p>
+            <a href="data:image/png;base64,' . htmlspecialchars($result['image']) . '" 
+               download="image-generee.png" 
+               class="download-btn">Télécharger l\'image</a>
+        </p>
+    </body>
+    </html>';
 } else {
-    echo '<div class="error">
-            <h1>Erreur</h1>
-            <p>' . htmlspecialchars($result['error']) . '</p>
-          </div>';
+    echo '<div class="error"><h1>Erreur</h1><p>' . htmlspecialchars($result['error']) . '</p></div>';
 }
-
-echo '</body>
-</html>';
