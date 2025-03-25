@@ -1,6 +1,5 @@
 import React from 'react';
-import { Box, Typography, IconButton } from '@mui/material';
-import { PlayArrow } from '@mui/icons-material';
+import { Box, Typography } from '@mui/material';
 
 const Result = ({ storyData, audioUrl, imageBase64 }) => {
   const base64Audio = audioUrl.startsWith("data:") ? audioUrl : `data:audio/mp3;base64,${audioUrl}`;
@@ -8,26 +7,25 @@ const Result = ({ storyData, audioUrl, imageBase64 }) => {
   return (
     <Box
       sx={{
-        width: '100%',
-        maxWidth: '600px',
-        bgcolor: 'rgba(255, 255, 255, 0.1)',
-        backdropFilter: 'blur(10px)',
+        width: '80vw',
         p: 4,
         borderRadius: 3,
         boxShadow: 3,
         textAlign: 'center',
       }}
     >
-      <Typography variant="h5" color="white" paragraph>
-        {storyData}
-      </Typography>
+      <Box sx={{display: 'flex', alignItems: 'center', gap: '20px'}}>
+        <Typography variant="h5" color="white" paragraph>
+          {storyData}
+        </Typography>
 
-      <Box sx={{ mb: 3 }}>
-        <img
-          src={`data:image/jpeg;base64,${imageBase64}`}
-          alt="Generated"
-          style={{ width: '100%', borderRadius: 8 }}
-        />
+        <Box sx={{ mb: 3 }}>
+          <img
+            src={`data:image/jpeg;base64,${imageBase64}`}
+            alt="Generated"
+            style={{ width: '400px', borderRadius: 8 }}
+          />
+        </Box>
       </Box>
 
       {audioUrl && (
